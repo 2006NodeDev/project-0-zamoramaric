@@ -6,6 +6,7 @@ import { User } from "../models/User";
 import { AuthFailureError} from '../errors/AuthFailError'
 //import { UserInputError } from "../errors/UserUserInputError";
 
+// this is going to contain all the functions that interact wit hthe book table
 
 ///GET USER BY ID
 export async function getUserById(id: number):Promise<User> {

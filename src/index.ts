@@ -6,15 +6,15 @@ import { getUserByUsernameAndPassword } from './daos/dao - user'
 import { userRouter } from './routers/userRouter'
 import {reimbursementRouter} from './routers/reimbursementRouter'
 
-const app = express()//we call the express function
-app.use(express.json())//this is an example of middle ware
+const app = express()//call the express function
+app.use(express.json())//example of middleware
 
 
-app.use(loggingMiddleware)// we use use to match everything, no path to match all paths
+app.use(loggingMiddleware)
 app.use(sessionMiddleware)
 
 app.use('/users', userRouter)// redirect all requests on /users to the router
-app.use('/reimbursement', reimbursementRouter)// redirect all requests on /users to the router
+app.use('/reimbursements', reimbursementRouter)// redirect all requests on /reimbursements to the router
 
 
 app.post('/login', async (req:Request, res:Response, next:NextFunction)=>{

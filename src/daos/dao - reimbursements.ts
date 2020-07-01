@@ -6,9 +6,11 @@ import { UserNotFoundError } from "../errors/UserNotFoundError";
 //mport { User } from "../models/User";
 import { Reimbursement } from "../models/Reimbursement";
 
+// this is going to contain all the functions that interact wit hthe book table
 
 
-export async function getReimburByStatus(id: number):Promise<Reimbursement[]> {
+export async function getReimburByStatus( status: number):Promise<Reimbursement> {
+   //Reimbursement[]
     let client: PoolClient
     try {
         //get a connection
@@ -31,13 +33,13 @@ export async function getReimburByStatus(id: number):Promise<Reimbursement[]> {
                 on r."status" = rs."status_id" 
             left join ersapi.reimbursementtype rt
                 on r."type" = rt."type_id"
-                    where r."status" = 1
-            order by r.date_submitted;`,[id])   
+                    where r."status" = $1
+            order by r.date_submitted;`,[status])   
                 if(results.rowCount === 0){
             throw new Error('User Not Found')
         }
-        //return UserDTOtoUserConver(results.rows[0])//there should only ever be one row
-        return results.rows.map(ReimbDTOtoReimbConverter);
+        return ReimbDTOtoReimbConverter(results.rows[0])//there should only ever be one row
+       // return results.rows.map(ReimbDTOtoReimbConverter);
 
     } catch (e) {
         if(e.message === 'User Not Found'){

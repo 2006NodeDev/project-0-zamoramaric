@@ -13,28 +13,3 @@ export class UserDTO {
 	role:string
     role_id:number
 }
-
-
-
-
-
-
-
-
-
-/*
-export class UserDTO {
-    userId: number
-	username: string
-	password: string
-	firstName: string
-	lastName: string
-	email: string
-	role: {
-        role:string,
-        role_Id: number
-    }
-    roleId: number
-    //roleId: number
-}
-*/
