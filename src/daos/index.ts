@@ -2,8 +2,7 @@ import {Pool} from 'pg'
 
 
 //Creating pool connection connect to Google Cloud SQL 
-export const connectionPool:Pool = new Pool ({
-
+export const connectionPool:Pool = new Pool ({    
     host: process.env['LB_Host'],
     user:  process.env['LB_User'],
     password:  process.env['LB_PW'],

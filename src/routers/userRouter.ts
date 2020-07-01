@@ -1,6 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express'
 import { authenticationMiddleware } from '../middleware/authent-middleware'
-import { getUserById } from '../daos/dao - user'
+import { getUserById,getAllUsers } from '../daos/dao - user'
+//import {authorizMiddleware} from '../middleware/authoriz-middleware'
+
 //import { UserUserInputError } from '../errors/UserUserInputError'
 //import { User } from '../models/User'
 
@@ -22,4 +24,17 @@ userRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) =
             next(e)
         }
     }
+})
+//authorizMiddleware([//get
+
+//get all users
+userRouter.get('/', async (req:Request, res:Response, next:NextFunction)=>{
+
+try {
+    let allUsers = await getAllUsers()
+    res.json(allUsers)
+}catch(e){
+    next(e)
+}
+
 })

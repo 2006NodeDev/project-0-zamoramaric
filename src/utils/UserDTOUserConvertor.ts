@@ -17,11 +17,6 @@ export function UserDTOtoUserConver(udto: UserDTO): User{
     }
 }
 
-
-
-
-
-//TESTING
 /*
 //import { UserDTO } from "../dtos/dao-user";
 import {UserDTO} from "../dtos/dto - user";
@@ -47,5 +42,4 @@ export function UserDTOtoUserConvertor(udto:UserDTO):User{
             roleId: udto.roleId
         }
     }
-}
-*/
+}*/

@@ -4,6 +4,7 @@ import { sessionMiddleware } from './middleware/sessionMiddleware'
 import { BadCredentError } from './errors/BadCredError'
 import { getUserByUsernameAndPassword } from './daos/dao - user'
 import { userRouter } from './routers/userRouter'
+//import {reimbursementRouter} from './routers/reimbursementRouter'
 
 const app = express()//we call the express function
 app.use(express.json())//this is an example of middle ware
@@ -15,6 +16,8 @@ app.use(sessionMiddleware)
 //app.use('/books', bookRouter)// redirect all requests on /books to the router
 //app.use('/users', userRouter)// redirect all requests on /users to the router
 app.use('/users', userRouter)// redirect all requests on /users to the router
+//app.use('/users', reimbursementRouter)// redirect all requests on /users to the router
+
 
 app.post('/login', async (req:Request, res:Response, next:NextFunction)=>{
     // destructuring to see ./routers/book-router
