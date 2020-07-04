@@ -2,22 +2,22 @@ import { ReimbursementDTO } from "../dtos/dtos - reimbursement";
 import { Reimbursement } from "../models/Reimbursement";
 
 //ReimbursementDTO takes objects in database format and converts it to Reimbursement model object
-export function ReimbDTOtoReimbConverter(rdto: ReimbursementDTO): Reimbursement {
+export function ReimbDTOtoReimbConverter(reimbursDTO: ReimbursementDTO): Reimbursement {
     return {
-        reimbursementId: rdto.reimbursement_id,
-        author: rdto.author,
-        amount: rdto.amount,
-        date_submitted: new Date(rdto.date_submitted), 
-        date_resolved: new Date(rdto.date_resolved),
-        description: rdto.description,
-        resolver: rdto.resolver,
+        reimbursementId: reimbursDTO.reimbursement_id,
+        author: reimbursDTO.author,
+        amount: reimbursDTO.amount,
+        date_submitted: new Date(reimbursDTO.date_submitted), 
+        date_resolved: new Date(reimbursDTO.date_resolved),
+        description: reimbursDTO.description,
+        resolver: reimbursDTO.resolver,
         status: {
-            status: rdto.status,
-            statusId: rdto.status_id
+            status: reimbursDTO.status,
+            statusId: reimbursDTO.status_id
         },
         type: {
-            type: rdto.type,
-            typeId: rdto.type_id
+            type: reimbursDTO.type,
+            typeId: reimbursDTO.type_id
         }
     }
 }

@@ -45,8 +45,6 @@ export async function getUserById(id: number):Promise<User> {
     }
 }
 
-
-
 //login 
 export async function getUserByUsernameAndPassword(username:string, password:string):Promise<User>{
     let client: PoolClient
