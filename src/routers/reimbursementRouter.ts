@@ -3,19 +3,21 @@ import express, { Request, Response, NextFunction } from 'express'
 import { authenticationMiddleware } from '../middleware/authent-middleware'
         //import { getReimburByStatus } from '../daos/dao - reimbursements'
 //import { reimbursInputError } from '../errors/ReimbursUserInputError'
-//import { Reimbursement } from '../models/Reimbursement'
+import { Reimbursement } from '../models/Reimbursement'
 //import { UserIdInputError } from '../errors/UserIdInputError'
 //import {submitReimbursement} from '../daos/dao - reimbursements'
 //import {authorizMiddleware} from '../middleware/authoriz-middleware'
-
 //import { UserUserInputError } from '../errors/UserUserInputError'
 //import { User } from '../models/User'
-import {getReimburByStatus} from "../daos/dao - reimbursements"
+import {getReimburByStatus,getReimburByUserId} from "../daos/dao - reimbursements"
+import {reimbursInputError} from "../errors/ReimbursUserInputError"
+import{saveNewReimbur} from "../daos/dao - reimbursements"
 export const reimbursementRouter = express.Router() //creating the userRouter variable to use as a router 
 
 reimbursementRouter.use(authenticationMiddleware)
 
-reimbursementRouter.get('status/:status_id', async (req: Request, res: Response, next: NextFunction) => {
+//find by status id
+reimbursementRouter.get('/status/:status_id', async (req: Request, res: Response, next: NextFunction) => {
    //, authorizMiddleware(['Admin', 'Finance Manager'])
     let { status_id } = req.params
     if (isNaN(+status_id)) {
@@ -30,7 +32,23 @@ reimbursementRouter.get('status/:status_id', async (req: Request, res: Response,
         }
     }
 })
-
+//find my user id
+reimbursementRouter.get('/author/userId/:userId', async (req: Request, res: Response, next: NextFunction) => {
+    //, authorizMiddleware(['Admin', 'Finance Manager'])
+     let { userId } = req.params
+     if (isNaN(+userId)) {
+         // responding with a 400 error:"Id needs to be a number"
+         res.status(400).send('Id needs to be a number')
+     } else {
+         try {
+             let uId = await getReimburByUserId(+userId)
+             res.json(uId)
+         } catch (e) {
+             next(e)
+         }
+     }
+ })
+ 
 /* 
 // for saving a new reimbursement
 // this endpoint will run all the middleware functions one at a time
@@ -79,3 +97,43 @@ reimbursementRouter.post('/',authorizMiddleware(['Admin', ' Finance Manager','Us
         // .send can send a response in many different content-types
    
 */
+//Create new reimbursement
+reimbursementRouter.post('/',  async (req: Request, res: Response, next: NextFunction) => {
+   //authorizationMiddleware(['Admin']),
+    // get input from the user
+    console.log(req.body);
+
+    let { 
+        author,
+        amount,
+        date_submitted,
+        description,
+        type } = req.body
+    if(author && amount && date_submitted && description && type) {
+        let newReim: Reimbursement = {
+            reimbursementId: 0,
+            author,
+            amount,
+            date_submitted,
+            date_resolved: null,
+            description,
+            resolver: null,
+            status: //status is automatically 1:"Pending"
+                {
+                    status: 'Pending',
+                    statusId: 1
+                },
+            type
+        }
+        newReim.type = type || null
+        try {
+            let savedReim = await saveNewReimbur(newReim)
+            res.json(savedReim)
+        } catch (e) {
+            next(e)
+        }
+    }
+    else {
+        throw new reimbursInputError()
+    }
+})
