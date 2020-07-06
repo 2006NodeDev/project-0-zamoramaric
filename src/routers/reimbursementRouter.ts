@@ -18,8 +18,8 @@ export const reimbursementRouter = express.Router() //creating the userRouter va
 reimbursementRouter.use(authenticationMiddleware)
 
 //find by status id
-reimbursementRouter.get('/status/:status_id',authorizationMiddleware(['Admin', 'Finance Manager']), async (req: Request, res: Response, next: NextFunction) => {
-   //, authorizMiddleware(['Admin', 'Finance Manager'])
+reimbursementRouter.get('/status/:status_id',authorizationMiddleware(['admin', 'Finanical Manager']), async (req: Request, res: Response, next: NextFunction) => {
+   //, authorizMiddleware(['Admin', 'Financial Manager'])
     let { status_id } = req.params
     if (isNaN(+status_id)) {
         // responding with a 400 error:"Id needs to be a number"
@@ -34,8 +34,8 @@ reimbursementRouter.get('/status/:status_id',authorizationMiddleware(['Admin', '
     }
 })
 //find my user id
-reimbursementRouter.get('/author/userId/:userId',authorizationMiddleware(['Finance Manager']), async (req: Request, res: Response, next: NextFunction) => {
-    //, authorizMiddleware(['Admin', 'Finance Manager'])
+reimbursementRouter.get('/author/userId/:userId',authorizationMiddleware(['admin','Finanical Manager']), async (req: Request, res: Response, next: NextFunction) => {
+    //, authorizMiddleware(['Admin', 'Financial Manager'])
      let { userId } = req.params
      if (isNaN(+userId)) {
          // responding with a 400 error:"Id needs to be a number"
@@ -52,7 +52,7 @@ reimbursementRouter.get('/author/userId/:userId',authorizationMiddleware(['Finan
  
 
 //Create new reimbursement
-reimbursementRouter.post('/', authorizationMiddleware(['Admin', 'Finance Manager', 'User']),  async (req: Request, res: Response, next: NextFunction) => {
+reimbursementRouter.post('/', authorizationMiddleware(['admin', 'Finanical Manager', 'User']),  async (req: Request, res: Response, next: NextFunction) => {
    //authorizationMiddleware(['Admin']),
     // get input from the user
     console.log(req.body);
@@ -90,25 +90,5 @@ reimbursementRouter.post('/', authorizationMiddleware(['Admin', 'Finance Manager
         throw new reimbursInputError()
     }
 })
+//updating Reimbur
 
-/*
-//update usreimbursement record
-reimbursementRouter.patch('/', authorizationMiddleware(['Admin']), async (req: Request, res: Response, next: NextFunction) => {
-    //
-    let {reimbursementId, author, amount, date_submitted, date_resolved, description, resolver, status, type } = req.body
-    let ColumnstoUpdate:Reimbursement = {reimbursementId:reimbursementId, author:author, amount:amount, 
-        date_submitted:date_submitted, 
-    date_resolved:date_resolved,
-     description:description, 
-     resolver:resolver, 
-     status:status, 
-     type:type}
-    try{
-        let updatedReimbursement = await updateReimbursement(ColumnstoUpdate)
-        let [newReimbursement] = updatedReimbursement
-        res.json(newReimbursement)
-    }catch(e){
-        console.log(e)
-    }
-})
-*/

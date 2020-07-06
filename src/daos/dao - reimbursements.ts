@@ -1,4 +1,6 @@
 import { PoolClient } from "pg"; //, QueryResult
+//import { QueryResult } from "pg"; //, QueryResult
+
 import { connectionPool } from ".";
 //import { UserDTOtoUserConver } from "../utils/UserDTOUserConvertor";
 import {ReimbDTOtoReimbConverter} from "../utils/ReimbursDTOReimbursConvertor";
@@ -36,11 +38,9 @@ export async function getReimburByStatus(status: number):Promise<Reimbursement[]
     order by r.date_submitted;`,[status] )
     return results.rows.map(ReimbDTOtoReimbConverter)
 } catch (e) {
-    //if we get an error we don't know 
     console.log(e)
     throw new Error('Unhandled Error Occured')
 } finally {
-    //let the connectiopn go back to the pool
     client && client.release()
 }
 }
@@ -72,11 +72,9 @@ export async function getReimburByUserId(userId: number):Promise<Reimbursement[]
     order by r.date_submitted;`, [userId])
     return results.rows.map(ReimbDTOtoReimbConverter)
 } catch (e) {
-    //if we get an error we don't know 
     console.log(e)
     throw new Error('Unhandled Error Occured')
 } finally {
-    //let the connectiopn go back to the pool
     client && client.release()
 }
 }
@@ -88,7 +86,7 @@ export async function saveNewReimbur(newImburs:Reimbursement):Promise<Reimbursem
         client = await connectionPool.connect()
         //make a transaction
         await client.query('BEGIN;')
-        let typeId = await client.query(`select r."type_id" from ersapi.reimbursementtypes ty where ty."type" = $1;`, [newImburs.type])
+        let typeId = await client.query(`select r."type_id" from ersapi.reimbursementtype ty where ty."type" = $1;`, [newImburs.type])
         if(typeId.rowCount === 0){
             throw new Error('This Type Was  Not Found')
         }
@@ -113,19 +111,4 @@ export async function saveNewReimbur(newImburs:Reimbursement):Promise<Reimbursem
 }
 
 
-/*
 
-export async function updateReimbursement(infoToChange:Reimbursement){
-    let client:PoolClient;
-    try{
-        client = await connectionPool.connect()
-        let result:QueryResult = await client.query(`set schema 'project0';`)
-        result = await client.query(buildReimbursementUpdateQuery(infoToChange))
-        result = await client.query(`select "reimbursement_id","amount", "date_submitted","date_resolved","description","status_id","status","type_id", "type", "username" from reimbursements r natural join reimbursement_types rt natural join status s inner join users u on r."author_id" = u.user_Id where r."reimbursement_id" = ${infoToChange.reimbursementId};`)
-        return result.rows
-    }catch(e){
-        console.log(e)
-        throw new Error('unimplemented error handling')
-    }
-
-}*/

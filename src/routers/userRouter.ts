@@ -9,7 +9,7 @@ export const userRouter = express.Router() //creating the userRouter variable to
 userRouter.use(authenticationMiddleware)
 
 //get by id - using the get verb to find a user through an id
-userRouter.get('/:id', authorizationMiddleware(['Admin', 'Finance Manager']), async (req: Request, res: Response, next: NextFunction) => {
+userRouter.get('/:id', authorizationMiddleware(['admin', 'Finanical Manager']), async (req: Request, res: Response, next: NextFunction) => {
     let { id } = req.params
     if (isNaN(+id)) {
         // responding with a 400 error:"Id needs to be a number"
@@ -26,7 +26,7 @@ userRouter.get('/:id', authorizationMiddleware(['Admin', 'Finance Manager']), as
 //authorizMiddleware([//get
 
 //get all users
-userRouter.get('/',  authorizationMiddleware(['Admin', 'Finance Manager']),async (req:Request, res:Response, next:NextFunction)=>{
+userRouter.get('/',  authorizationMiddleware(['admin', 'Finanical Manager']),async (req:Request, res:Response, next:NextFunction)=>{
 try { 
     let allUsers = await getAllUsers()
     res.json(allUsers)
@@ -37,7 +37,7 @@ try {
 })
 
 //update user record
-userRouter.patch('/', authorizationMiddleware(['Admin']), async (req: Request, res: Response, next: NextFunction) => {
+userRouter.patch('/', authorizationMiddleware(['admin']), async (req: Request, res: Response, next: NextFunction) => {
     //
     // get input from the user
     let { userId,username, password,firstName,lastName, email, role } = req.body// destructuring
