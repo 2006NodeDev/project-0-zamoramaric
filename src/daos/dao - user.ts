@@ -108,3 +108,25 @@ export async function getAllUsers():Promise<User[]> {
     }
 }
 
+//UPDATING USER INFO
+
+export async function UpdatesToUser(NewUserUpdate: User) {
+    let client: PoolClient;
+    try {
+        client = await connectionPool.connect();
+        client.query('BEGIN');
+
+        await client.query('update ersapi.users set username = $1, password = $2, firstName = $3, lastName = $4, email = $5, role=$6 where user_id = $7',
+            [NewUserUpdate.username, NewUserUpdate.password, NewUserUpdate.firstName, NewUserUpdate.lastName, NewUserUpdate.email, NewUserUpdate.role, NewUserUpdate.userId]);    
+       
+            client.query('COMMIT');
+    } catch (e) {
+        client.query('ROLLBACK');
+        throw {
+            status: 500,
+            message: 'Error When Updating a User'
+        };
+    } finally {
+        client && client.release();
+    }
+}

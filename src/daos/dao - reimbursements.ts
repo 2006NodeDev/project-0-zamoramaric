@@ -1,4 +1,4 @@
-import { PoolClient } from "pg";
+import { PoolClient } from "pg"; //, QueryResult
 import { connectionPool } from ".";
 //import { UserDTOtoUserConver } from "../utils/UserDTOUserConvertor";
 import {ReimbDTOtoReimbConverter} from "../utils/ReimbursDTOReimbursConvertor";
@@ -86,26 +86,25 @@ export async function saveNewReimbur(newImburs:Reimbursement):Promise<Reimbursem
     let client:PoolClient
     try{
         client = await connectionPool.connect()
-        //if you have multiple querys, you should make a transaction
-        await client.query('BEGIN;')//start a transaction
-        let typeId = await client.query(`select r."type_id" from ersapi.reimbursementtypes ty where ty."type" = $1`, [newImburs.type])
+        //make a transaction
+        await client.query('BEGIN;')
+        let typeId = await client.query(`select r."type_id" from ersapi.reimbursementtypes ty where ty."type" = $1;`, [newImburs.type])
         if(typeId.rowCount === 0){
-            throw new Error('Role Not Found')
+            throw new Error('This Type Was  Not Found')
         }
         typeId = typeId.rows[0].type_id
         let results = await client.query(`insert into ersapi.reimbursement ("author", "amount","date_submitted","description", "status", "type")
-                                            values($1,$2,$3,$4,$5,$6) returning "reimbursement_id";`,//allows you to return some values from the rows in an insert, update or delete
+                                            values($1,$2,$3,$4,$5,$6) returning "reimbursement_id";`,
                                             [newImburs.author, newImburs.amount, newImburs.date_submitted,newImburs.description,newImburs.status.statusId, typeId])
         newImburs.reimbursementId = results.rows[0].reimbursement_id
-        await client.query('COMMIT;')//ends transaction
+        await client.query('COMMIT;')
         return newImburs
 
     }catch(e){
-        client && client.query('ROLLBACK;')//if a js error takes place, undo the sql
-        if(e.message === 'Type Not Found' || e.message === 'Status Not Found'){
-            throw new reimbursInputError()// role not found error
+        client && client.query('ROLLBACK;')
+        if(e.message === 'This Type Was Not Found' || e.message === 'This Status Was Not Found'){
+            throw new reimbursInputError()
         }
-        //if we get an error we don't know 
         console.log(e)
         throw new Error('Unhandled Error Occured')
     }finally{
@@ -114,4 +113,19 @@ export async function saveNewReimbur(newImburs:Reimbursement):Promise<Reimbursem
 }
 
 
+/*
 
+export async function updateReimbursement(infoToChange:Reimbursement){
+    let client:PoolClient;
+    try{
+        client = await connectionPool.connect()
+        let result:QueryResult = await client.query(`set schema 'project0';`)
+        result = await client.query(buildReimbursementUpdateQuery(infoToChange))
+        result = await client.query(`select "reimbursement_id","amount", "date_submitted","date_resolved","description","status_id","status","type_id", "type", "username" from reimbursements r natural join reimbursement_types rt natural join status s inner join users u on r."author_id" = u.user_Id where r."reimbursement_id" = ${infoToChange.reimbursementId};`)
+        return result.rows
+    }catch(e){
+        console.log(e)
+        throw new Error('unimplemented error handling')
+    }
+
+}*/
