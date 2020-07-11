@@ -5,6 +5,8 @@ import { UserNotFoundError } from "../errors/UserNotFoundError";
 import { User } from "../models/User";
 import { AuthFailureError} from '../errors/AuthFailError'
 //import { UserInputError } from "../errors/UserUserInputError";
+//import {UpdatingUserInfoError} from "../errors/UserUpdateError"
+import {UserInputError} from "../errors/UserInputError"
 
 // this is going to contain all the functions that interact wit hthe book table
 
@@ -109,24 +111,113 @@ export async function getAllUsers():Promise<User[]> {
 }
 
 //UPDATING USER INFO
+export async function UpdatesToUser(updatedUserInfo:User):Promise<User> {
+    let client:PoolClient
+    try {
+        client = await connectionPool.connect()
+        await client.query('BEGIN;')
 
+        if(updatedUserInfo.username) {
+            await client.query(`update ersapi.users set "username" = $1 
+                                    where "user_id" = $2;`, 
+                                    [updatedUserInfo.username, updatedUserInfo.userId])
+        }
+        if(updatedUserInfo.password) {
+            await client.query(`update ersapi.users set "password" = $1 
+                                    where "user_id" = $2;`, 
+                                    [updatedUserInfo.password, updatedUserInfo.userId])
+        }
+        if(updatedUserInfo.firstName) {
+            await client.query(`update ersapi.users set "firstName" = $1 
+                                    where "user_id" = $2;`, 
+                                    [updatedUserInfo.firstName, updatedUserInfo.userId])
+        }
+        if(updatedUserInfo.lastName) {
+            await client.query(`update ersapi.users set "lastName" = $1 
+                                    where "user_id" = $2;`, 
+                                    [updatedUserInfo.lastName, updatedUserInfo.userId])
+        }
+        if(updatedUserInfo.email) {
+            await client.query(`update ersapi.users set "email" = $1 
+                                    where "user_id" = $2;`, 
+                                    [updatedUserInfo.email, updatedUserInfo.userId])
+        }
+        if(updatedUserInfo.role) {
+            let roleId = await client.query(`select r."role_id" from ersapi.roles r 
+                                        where r."role" = $1`,
+                                        [updatedUserInfo.role])
+            if(roleId.rowCount === 0) {
+                throw new Error('Role Not Found')
+            }
+            roleId = roleId.rows[0].role_id
+            await client.query(`update ersapi.users set "role" = $1 
+                                    where "user_id" = $2;`, 
+                                    [roleId, updatedUserInfo.userId])
+        }
+
+        await client.query('COMMIT;')
+        return updatedUserInfo
+    } catch (e) {
+        client && client.query('ROLLBACK;')
+        if(e.message === 'Role Not Found') {
+            throw new UserInputError()
+        }
+        console.log(e);
+        throw new Error('Unhandled Error')
+    } finally {
+        client && client.release()
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 export async function UpdatesToUser(NewUserUpdate: User) {
     let client: PoolClient;
     try {
         client = await connectionPool.connect();
         client.query('BEGIN');
 
-        await client.query('update ersapi.users set username = $1, password = $2, firstName = $3, lastName = $4, email = $5, role=$6 where user_id = $7',
-            [NewUserUpdate.username, NewUserUpdate.password, NewUserUpdate.firstName, NewUserUpdate.lastName, NewUserUpdate.email, NewUserUpdate.role, NewUserUpdate.userId]);    
+        await client.query('update ersapi.users set "username" = $1, "password" = $2, "firstName" = $3, "lastName" = $4, "email" = $5, "role" = $6 where "user_id" = $7',
+            [NewUserUpdate.username, NewUserUpdate.password, NewUserUpdate.firstName, NewUserUpdate.lastName, NewUserUpdate.email, NewUserUpdate.role.roleId, NewUserUpdate.userId]);    
        
             client.query('COMMIT');
     } catch (e) {
         client.query('ROLLBACK');
-        throw {
-            status: 500,
-            message: 'Error When Updating a User'
-        };
+        console.log(e)
+        throw UpdatingUserInfoError;
     } finally {
         client && client.release();
     }
 }
+*/

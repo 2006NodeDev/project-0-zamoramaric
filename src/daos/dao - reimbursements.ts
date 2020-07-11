@@ -1,5 +1,4 @@
-import { PoolClient } from "pg"; //, QueryResult
-//import { QueryResult } from "pg"; //, QueryResult
+import { PoolClient, QueryResult } from "pg"; //, QueryResultimport { QueryResult } from "pg"; //, QueryResult
 
 import { connectionPool } from ".";
 //import { UserDTOtoUserConver } from "../utils/UserDTOUserConvertor";
@@ -8,7 +7,7 @@ import {ReimbDTOtoReimbConverter} from "../utils/ReimbursDTOReimbursConvertor";
 //mport { User } from "../models/User";
 import { Reimbursement } from "../models/Reimbursement";
 //import {ReimbursNotFoundError} from "../errors/ReimbursNotFound"
-import {reimbursInputError} from "../errors/ReimbursUserInputError"
+//import {reimbursInputError} from "../errors/ReimbursUserInputError"
 
 // this is going to contain all the functions that interact wit hthe book table
 
@@ -80,6 +79,84 @@ export async function getReimburByUserId(userId: number):Promise<Reimbursement[]
 }
 
 //save a new reimbursement
+
+export async function saveNewReimbur(newReimbur:Reimbursement):Promise<Reimbursement>{
+   // export async function submitNewReimb(newReimb: Reimbursement) : Promise <Reimbursement>{
+        let client:PoolClient
+        console.log(newReimbur)
+    
+        try{
+            client = await connectionPool.connect() //gives you a promise, so you take it out of the stack to prevent blocking
+            
+            let result:QueryResult = await client.query(`insert into ersapi."reimbursement" ("author", "amount", "date_submitted", "date_resolved", "description", "resolver", "status", "type")
+                                                            values ($1, $2, '$3', '$4', '$5', $6, $7, $8) returning "reimbursement_id"`, 
+                                                            [newReimbur.author, newReimbur.amount, newReimbur.date_submitted, newReimbur.date_resolved, 
+                                                                newReimbur.description, newReimbur.resolver, newReimbur.status, newReimbur.type])   
+        newReimbur.reimbursementId = result.rows[0].reimbursement_id
+            return newReimbur  
+        }catch (err){    
+            console.log(err)
+            throw new Error('Unimplimented id error')     
+        }finally{
+            client && client.release()
+        }
+    }
+    
+    /*
+    let client:PoolClient
+    try{
+        client = await connectionPool.connect()
+        //if you have multiple querys, you should make a transaction
+        await client.query('BEGIN;')//start a transaction
+        let roleId = await client.query(`select r."role_id" from lightlyburning.roles r where r."role" = $1`, [newReimbur.role])
+        if(roleId.rowCount === 0){
+            throw new Error('Role Not Found')
+        }
+        roleId = roleId.rows[0].role_id
+        let results = await client.query(`insert into lightlyburning.users ("username", "password","email","role")
+                                            values($1,$2,$3,$4) returning "user_id" `,//allows you to return some values from the rows in an insert, update or delete
+                                            [newReimbur.username, newReimbur.password, newReimbur.email, roleId])
+                                            newReimbur.userId = results.rows[0].user_id
+        await client.query('COMMIT;')//ends transaction
+        return newReimbur
+
+    }catch(e){
+        client && client.query('ROLLBACK;')//if a js error takes place, undo the sql
+        if(e.message === 'Role Not Found'){
+            throw new reimbursInputError()// role not found error
+        }
+        //if we get an error we don't know 
+        console.log(e)
+        throw new Error('Unhandled Error Occured')
+    }finally{
+        client && client.release();
+    }
+}
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 export async function saveNewReimbur(newImburs:Reimbursement):Promise<Reimbursement>{
     let client:PoolClient
     try{
@@ -112,3 +189,4 @@ export async function saveNewReimbur(newImburs:Reimbursement):Promise<Reimbursem
 
 
 
+*/

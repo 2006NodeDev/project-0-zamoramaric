@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express'
 import { authenticationMiddleware } from '../middleware/authent-middleware'
 import { getUserById,getAllUsers,UpdatesToUser } from '../daos/dao - user'
-import {UserNewInputError} from '../errors/NewUserInputError'
+//import {UserNewInputError} from '../errors/UserInputError'
 import {authorizationMiddleware} from '../middleware/authoriz-middleware'
 import { User } from '../models/User'
 export const userRouter = express.Router() //creating the userRouter variable to use as a router 
@@ -37,6 +37,58 @@ try {
 })
 
 //update user record
+userRouter.patch('/', authorizationMiddleware(['admin']), async (req:Request, res:Response, next:NextFunction) => {
+    let { userId,
+        username,
+        password,
+        firstName,
+        lastName,
+        email,
+        role } = req.body
+    if(!userId) { //update request must contain a userId
+        res.status(400).send('User Updates Require UserId and at Least One Other Field')
+    }
+    else if(isNaN(+userId)) { //check if userId is valid
+        res.status(400).send('Id Needs to be a Number')
+    }
+    else {
+        let updatedUserInfo:User = {
+            userId,
+            username,
+            password,
+            firstName,
+            lastName,
+            email,
+            role
+        }
+        updatedUserInfo.username = username || undefined
+        updatedUserInfo.password = password || undefined
+        updatedUserInfo.firstName = firstName || undefined
+        updatedUserInfo.lastName = lastName || undefined
+        updatedUserInfo.email = email || undefined
+        updatedUserInfo.role = role || undefined
+        try {
+            let result = await UpdatesToUser(updatedUserInfo)
+            res.json(result)
+        } catch (e) {
+            next(e)
+        }
+    }
+}) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 userRouter.patch('/', authorizationMiddleware(['admin']), async (req: Request, res: Response, next: NextFunction) => {
     //
     // get input from the user
@@ -64,3 +116,4 @@ userRouter.patch('/', authorizationMiddleware(['admin']), async (req: Request, r
         }
     }
 })
+*/
